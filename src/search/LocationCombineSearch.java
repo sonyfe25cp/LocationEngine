@@ -1,24 +1,35 @@
 package search;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 
 import origin.FriendShipOrigin;
 import refined.Indexable;
 import refined.NewLuyou;
+import test.WordsCount;
 
 /**
  * 搜索某地的微博
@@ -26,7 +37,7 @@ import refined.NewLuyou;
  * Dec 24, 2012
  */
 public class LocationCombineSearch extends SearchFramework{
-	static String indexPath="/Users/omar/project/locationEngine/index";
+	static String indexPath="/Users/omar/project/locationEngine/index-std";
 	
 	public LocationCombineSearch(){
 		super(indexPath);
@@ -59,9 +70,8 @@ public class LocationCombineSearch extends SearchFramework{
 	 * Dec 24, 2012
 	 */
 	public static void main(String[] args) {
-		String indexPath="/Users/omar/project/locationEngine/index";
 		String location = "中央戏剧学院";
-		LocationCombineSearch ls = new LocationCombineSearch(indexPath);
+		LocationCombineSearch ls = new LocationCombineSearch();
 		ls.search(location);
 		
 		System.out.println("**********************************");
@@ -70,6 +80,8 @@ public class LocationCombineSearch extends SearchFramework{
 		ls.search(uid,location);
 		System.out.println("**********************************");
 		ls.wideSearch(uid, location);
+		
+//		ls.write2file();
 		
 		ls.close();
 	}
@@ -129,13 +141,12 @@ public class LocationCombineSearch extends SearchFramework{
 		    }
 		    
 		    BooleanQuery boolQuery = new BooleanQuery();
-		    boolQuery.add(query, Occur.MUST);
 		    for(String focusId : focusIds){
-		    	TermQuery uidQuery = new TermQuery(new Term("uid",uid));
+		    	TermQuery uidQuery = new TermQuery(new Term("uid",focusId));
 		    	boolQuery.add(uidQuery, Occur.SHOULD);
 		    }
-		    
-		    ScoreDoc[] hits = isearcher.search(boolQuery, null, getMaxNum()).scoreDocs;
+		    QueryWrapperFilter qwf = new QueryWrapperFilter(boolQuery);
+		    ScoreDoc[] hits = isearcher.search(query, qwf, getMaxNum()).scoreDocs;
 		    for (int i = 0; i < hits.length; i++) {
 		      Document hitDoc = isearcher.doc(hits[i].doc);
 		      System.out.println(NewLuyou.fromDocument(hitDoc).toString());
@@ -145,7 +156,11 @@ public class LocationCombineSearch extends SearchFramework{
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-		
+	}
+	@Override
+	public Filter createFilter() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	public void close(){
 		 try {
@@ -157,6 +172,56 @@ public class LocationCombineSearch extends SearchFramework{
 		 }
 	}
 
+	/**
+	 *  统计地点热词
+	 */
+	public void write2file(){
+		try {
+			Map<String,Long> wordsbag = new HashMap<String,Long>();
+			System.out.println("maxDoc: "+ireader.maxDoc());
+			for(int doc = 0 ; doc < ireader.maxDoc(); doc ++){
+//			for(int doc = 0 ; doc < 200; doc ++){
+				
+				if(doc%1000 == 0){
+					System.out.println(doc + " parsed~~");
+				}
+				Terms terms = ireader.getTermVector(doc, "location");
+				if(terms == null){
+					continue;
+				}
+				TermsEnum termsEnum = terms.iterator(null);
+				BytesRef term = null;
+				while ((term = termsEnum.next()) != null) {
+					String word = termsEnum.term().utf8ToString();
+//					System.out.println("== "+word);
+					if(word.length()>1){
+						if(wordsbag.containsKey(word)){
+							long value = wordsbag.get(word);
+							wordsbag.put(word, value+1);
+						}else{
+							wordsbag.put(word, 1l);
+						}
+					}
+				}
+			}
+			FileWriter fw = new FileWriter(new File("/Users/omar/project/locationEngine/stat/locations.txt"));
+			List<WordsCount> wclist = new ArrayList<WordsCount>();
+			for(Entry<String,Long> entry: wordsbag.entrySet()){
+				WordsCount wc = new WordsCount(entry.getKey(), entry.getValue());
+				wclist.add(wc);
+			}
+			Collections.sort(wclist);
+			for(WordsCount wc : wclist){
+				fw.write(wc.getWord()+" "+wc.getCount());
+				fw.write("\n");
+			}
+			fw.flush();
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	
 
 }

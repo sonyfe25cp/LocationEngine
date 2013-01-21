@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -30,7 +31,7 @@ public abstract class SearchFramework {
 	Directory dir = null;
 	DirectoryReader ireader = null;
     IndexSearcher isearcher = null;
-    Analyzer analyzer = null;
+    protected Analyzer analyzer = null;
     private int maxNum = 100;
     
     public List<Indexable> origins = new ArrayList<Indexable>();
@@ -51,12 +52,13 @@ public abstract class SearchFramework {
 		}
     }
     public abstract Query createQuery(String args);
+    public abstract Filter createFilter();
     
     public void search(String args){
 		try {
 		    Query query = createQuery(args);
-		    
-		    ScoreDoc[] hits = isearcher.search(query, null, maxNum).scoreDocs;
+		    Filter filter = createFilter();
+		    ScoreDoc[] hits = isearcher.search(query, filter, maxNum).scoreDocs;
 		    for (int i = 0; i < hits.length; i++) {
 		      Document hitDoc = isearcher.doc(hits[i].doc);
 //		      System.out.println("docId: "+hits[i].doc);

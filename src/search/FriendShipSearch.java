@@ -5,6 +5,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.Version;
@@ -67,5 +68,10 @@ public class FriendShipSearch extends SearchFramework{
 		System.out.println("***************");
 		ls.focuses(uid);
 		ls.close();
+	}
+	@Override
+	public Filter createFilter() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

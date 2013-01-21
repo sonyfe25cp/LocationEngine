@@ -10,9 +10,9 @@ import search.PeopleSearch;
 public class MainSearch {
 
 	public static void main(String[] args) {
-		String location = "后海";
-		String nikename = "梁斌penny";
-		long id = 1565312602;
+		String location = "北京理工大学";
+		String nikename = "Sonyfe25cp";
+		long id = 1835054731;
 		
 		MainSearch ms = new MainSearch();
 		//搜某地
@@ -22,9 +22,9 @@ public class MainSearch {
 		//搜某人好友在某地
 		ms.search(id,location,true);
 		//搜某人昵称在某地
-		ms.search(nikename, location,false);
+//		ms.search(nikename, location,false);
 		//搜某人昵称好友在某地
-		ms.search(nikename, location,true);
+//		ms.search(nikename, location,true);
 	}
 	
 	void search(String location){

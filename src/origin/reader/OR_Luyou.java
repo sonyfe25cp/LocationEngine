@@ -73,7 +73,7 @@ public class OR_Luyou {
 		LuyouOrigin luyou = transfromString(str);
 //		System.out.println(luyou);
 		
-		File file = new File("/home/coder/Desktop/Link to share/lvyou.result.2/lvyou.result.2");
+		File file = new File("/Users/omar/data/sinaweibo/lvyou.result.2");
 		OR_Luyou or = new OR_Luyou(file);
 		luyou = or.getNext();
 		int i = 1;

@@ -3,6 +3,7 @@ package search;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
@@ -58,5 +59,10 @@ public class PeopleSearch extends SearchFramework{
 		System.out.println("**************************");
 		ls.searchName("梁斌penny");
 		ls.close();
+	}
+
+	@Override
+	public Filter createFilter() {
+		return null;
 	}
 }

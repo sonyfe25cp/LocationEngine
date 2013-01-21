@@ -1,14 +1,6 @@
 package search;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Fields;
@@ -17,12 +9,12 @@ import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 
 import origin.Location;
-import test.WordsCount;
 
 public class LocationSearch extends SearchFramework{
 
@@ -60,50 +52,9 @@ public class LocationSearch extends SearchFramework{
 		String location="清华大学";
 		ls.search(location);
 		ls.showTermsFreq();
-//		ls.write2file();
 		ls.close();
 	}
-	public void write2file(){
-		try {
-			Map<String,Long> wordsbag = new HashMap<String,Long>();
-			for(int doc = 0 ; doc < ireader.maxDoc(); doc ++){
-//			for(int doc = 0 ; doc < 200; doc ++){
-				Terms terms = ireader.getTermVector(doc, "location");
-				if(terms == null){
-					continue;
-				}
-				TermsEnum termsEnum = terms.iterator(null);
-				BytesRef term = null;
-				while ((term = termsEnum.next()) != null) {
-					String word = termsEnum.term().utf8ToString();
-					System.out.println("== "+word);
-					if(word.length()>1){
-						if(wordsbag.containsKey(word)){
-							long value = wordsbag.get(word);
-							wordsbag.put(word, value+1);
-						}else{
-							wordsbag.put(word, 1l);
-						}
-					}
-				}
-			}
-			FileWriter fw = new FileWriter(new File("/Users/omar/project/locationEngine/stat/locations.txt"));
-			List<WordsCount> wclist = new ArrayList<WordsCount>();
-			for(Entry<String,Long> entry: wordsbag.entrySet()){
-				WordsCount wc = new WordsCount(entry.getKey(), entry.getValue());
-				wclist.add(wc);
-			}
-			Collections.sort(wclist);
-			for(WordsCount wc : wclist){
-				fw.write(wc.getWord()+" "+wc.getCount());
-				fw.write("\n");
-			}
-			fw.flush();
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	
 	public void showTermsFreq(){
 		try {
 			int num = ireader.docFreq(new Term("location","巴黎"));
@@ -139,6 +90,10 @@ public class LocationSearch extends SearchFramework{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	@Override
+	public Filter createFilter() {
+		return null;
 	}
 
 }

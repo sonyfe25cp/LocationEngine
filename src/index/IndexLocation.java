@@ -16,6 +16,10 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 import origin.Location;
 import dao.LocationDaoImpl;
 
+/**
+ * @author omar
+ *
+ */
 public class IndexLocation {
 	IndexWriter iwriter;
 	Directory dir;

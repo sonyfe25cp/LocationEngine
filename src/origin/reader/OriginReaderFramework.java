@@ -26,11 +26,39 @@ public abstract class OriginReaderFramework {
 	
 	public abstract void operateLine(String line) throws NextRowException;
 	public abstract void close();
+	public abstract void init();
 	public void run(){
 		try {
+			int i = 0;
+			init();
 			while((line = br.readLine())!=null){
 				try{
+					if(i%1000 == 0){
+						System.out.println(i + " lines over~");
+					}
 					operateLine(line);
+					i ++;
+				}catch(NextRowException e){
+					System.out.println("error! :"+line);
+					continue;
+				}
+			}
+			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void run(int num){
+		try {
+			int i = 0;
+			init();
+			while((line = br.readLine())!=null){
+				if(i>num){
+					break;
+				}
+				try{
+					operateLine(line);
+					i++;
 				}catch(NextRowException e){
 					System.out.println("error! :"+line);
 					continue;

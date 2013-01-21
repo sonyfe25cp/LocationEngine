@@ -1,11 +1,14 @@
 package refined;
 
+import index.VecTextField;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
@@ -18,7 +21,35 @@ public class NewLuyou implements Indexable{
 	private String location;
 	private List<String> atlist;
 	private String device;
+	private long time=0;
 	
+	
+	public NewLuyou(long uid, String tweet, String img, String location,
+			List<String> atlist, String device, long time) {
+		super();
+		this.uid = uid;
+		this.tweet = tweet;
+		this.img = img;
+		this.location = location;
+		this.atlist = atlist;
+		this.device = device;
+		this.time = time;
+	}
+	
+	public NewLuyou(long uid, String tweet, String img, List<String> atlist,
+			String device, long time) {
+		super();
+		this.uid = uid;
+		this.tweet = tweet;
+		this.img = img;
+		this.location= locationFilter(tweet);
+		this.atlist = atlist;
+		this.device = device;
+		this.time = time;
+	}
+
+
+
 	public NewLuyou (LuyouOrigin origin){
 		
 		long uid = Long.parseLong(origin.getA());
@@ -46,10 +77,11 @@ public class NewLuyou implements Indexable{
 	public Document toDocument(){
 		Document doc = new Document();
 		doc.add(new StringField("uid",uid+"",Store.YES));
-		doc.add(new TextField("location",location,Store.YES));
-		doc.add(new TextField("tweet",tweet,Store.YES));
+		doc.add(new VecTextField("location",location,Store.YES));
+		doc.add(new VecTextField("tweet",tweet,Store.YES));
 		doc.add(new StringField("img",img,Store.YES));
 		doc.add(new TextField("device",device,Store.YES));
+		doc.add(new LongField("time",time,Store.YES));
 		return doc;
 	}
 	
@@ -60,6 +92,7 @@ public class NewLuyou implements Indexable{
 		sb.append("tweet: "+tweet +" \n");
 		sb.append("img: "+img +" \n");
 		sb.append("device: "+device +" \n");
+		sb.append("time: "+time+" \n");
 		return sb.toString();
 	}
 	
@@ -69,6 +102,7 @@ public class NewLuyou implements Indexable{
 		String tweet = document.get("tweet");
 		String img = document.get("img");
 		String device = document.get("device");
+		long time = Long.parseLong(document.get("time")==null?"0":document.get("time"));
 		
 		long uid = document.get("uid") == null ? 0 :Long.parseLong(document.get("uid"));
 		luyou.setUid(uid);
@@ -76,6 +110,7 @@ public class NewLuyou implements Indexable{
 		luyou.setDevice(device);
 		luyou.setImg(img);
 		luyou.setTweet(tweet);
+		luyou.setTime(time);
 //		luyou.setAtlist(atlist);
 		return luyou;
 		
@@ -83,27 +118,52 @@ public class NewLuyou implements Indexable{
 	
 	private List<String> atFilter(String tweet){
 		if(tweet!=null && tweet.length()>0){
-//			return dao.save("pic", "img_url", imgUrl);
 		}else{
-			
 		}
 		return null;
 	}
 	
 	
-	private String locationFilter(String tweet){
-		String regex = "我在这里：#.*?#";
+	public static String locationFilter(String tweet){
+		String location = "";
+		String regex = "(我在这里：#.*?#|我在#.*?#|我在这里: #.*?#|我在这里:#.*?#|我在這裏: #.*?#|我在這裏:#.*?#)";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(tweet);
-		String location = "";
 		if (matcher.find()){
 		      location = matcher.group();
 		      location =  location.substring(location.indexOf("#")+1, location.length()-1);
 		}
-		return location;
+		if(location.length()>0){
+			return location;
+		}
+		String regex2 ="我在.*?。";
+		Pattern pattern2 = Pattern.compile(regex2);
+		Matcher matcher2 = pattern2.matcher(tweet);
+		location = "";
+		if (matcher2.find()){
+		      location = matcher2.group();
+		      location =  location.replaceAll("我在", "").replaceAll("。", "");
+		}
+		if(location.length()<5){
+			return location;
+		}else{
+			return "";
+		}
 	}
 	
-	private String tweetFilter(String body){
+	public static void main(String[] args){
+		NewLuyou nly = new NewLuyou();
+		String test = "我在这里：#上海浦东国际机场#我们出发咯 http://t.cn/S4b0W3";
+		String t2 = "我在#家乐福#，^V^ http://t.cn/SbKXkN";
+		String t3 = "我在家乐福看电影。^V^ http://t.cn/SbKXkN";
+		
+		System.out.println(locationFilter(test));
+		System.out.println(locationFilter(t2));
+		System.out.println(locationFilter(t3));
+	}
+	
+	
+	public static String tweetFilter(String body){
 		if(body!=null && body.length()>0){
 			body = body.replaceAll("[\uafff-\uefff]+"," ");
 			body = body.replaceAll("[\u1000-\u3fff]+"," ");
@@ -158,6 +218,12 @@ public class NewLuyou implements Indexable{
 
 	public void setDevice(String device) {
 		this.device = device;
+	}
+	public long getTime() {
+		return time;
+	}
+	public void setTime(long time) {
+		this.time = time;
 	}
 
 }

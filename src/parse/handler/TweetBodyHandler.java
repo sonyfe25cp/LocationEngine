@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import origin.LuyouOrigin;
 import parse.TweetParseHandler;
+import refined.NewLuyou;
 import refined.TTable;
 import dao.ITweetDAO;
 import dao.TweetDaoImpl;
@@ -81,9 +82,9 @@ public class TweetBodyHandler implements TweetParseHandler{
 	
 	private long tweetFilter(String body){
 		if(body!=null && body.length()>0){
-//			body = body.replaceAll("[^\u4e00-\u9fa5]+", " ");
-			body = body.replaceAll("[\uafff-\uefff]+"," ");
-			body = body.replaceAll("[\u1000-\u3fff]+"," ");
+//			body = body.replaceAll("[\uafff-\uefff]+"," ");
+//			body = body.replaceAll("[\u1000-\u3fff]+"," ");
+			body = NewLuyou.tweetFilter(body);
 			return dao.save("tweets", "tweet", body);
 		}else
 			return 0;
