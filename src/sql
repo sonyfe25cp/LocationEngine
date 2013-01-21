@@ -1,0 +1,34 @@
+drop database sinaweibo;
+create database sinaweibo;
+
+use sinaweibo;
+
+create table tweets(id int auto_increment primary key,
+	tweet varchar(500)
+);
+
+create table locations(id bigint auto_increment primary key,
+	location varchar(100)
+);
+
+create table imgs(id bigint auto_increment primary key,
+	img varchar(100)
+);
+
+create table users(id bigint auto_increment primary key,
+	nickname varchar(500) ,
+	uid bigint
+);
+
+create table devices(id bigint auto_increment primary key,
+	device varchar(500)
+);
+
+create table ttable(
+	tid bigint primary key,
+	uid bigint,
+	lid bigint,
+	did bigint,
+	iid bigint,
+	alist varchar(200)
+);
