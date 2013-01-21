@@ -58,9 +58,9 @@ public class LocationSearch extends SearchFramework{
 		String indexPath="/Users/omar/project/locationEngine/index-location";
 		LocationSearch ls = new LocationSearch(indexPath);
 		String location="清华大学";
-//		ls.search(location);
-//		ls.showTermsFreq();
-		ls.write2file();
+		ls.search(location);
+		ls.showTermsFreq();
+//		ls.write2file();
 		ls.close();
 	}
 	public void write2file(){

@@ -1,0 +1,29 @@
+基于签到位置的新浪微博数据搜索
+数据：
+	1.签到微博
+	2.用户个人信息
+	3.用户的关注列表
+功能：
+	1.单独搜在某一个地方发的微博
+		MainSearch ms = new MainSearch();
+		ms.search(location);
+	2.搜某人(ID)在某地发的微博
+		MainSearch ms = new MainSearch();
+		ms.search(id,location,false);
+	3.搜某人(ID)的好友在某地发的微博
+		MainSearch ms = new MainSearch();
+		ms.search(id,location,true);
+	4.搜某人(昵称)在某地
+		MainSearch ms = new MainSearch();
+		ms.search(nikename, location,false);
+	5.搜某人(昵称)好友在某地
+		MainSearch ms = new MainSearch();
+		ms.search(nikename, location,true);
+
+说明：
+	1.整个程序基于Lucene4.0进行实现
+	2.分词采用了IK智能切分分词方法
+
+待做：
+	1.重构程序结构
+	2.批量结果生成

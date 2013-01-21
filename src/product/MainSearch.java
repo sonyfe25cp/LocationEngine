@@ -22,9 +22,9 @@ public class MainSearch {
 		//搜某人好友在某地
 		ms.search(id,location,true);
 		//搜某人昵称在某地
-//		ms.search(nikename, location,false);
+		ms.search(nikename, location,false);
 		//搜某人昵称好友在某地
-//		ms.search(nikename, location,true);
+		ms.search(nikename, location,true);
 	}
 	
 	void search(String location){
@@ -67,6 +67,13 @@ public class MainSearch {
 	//false 为自己
 	//true 为好友
 	void search(String nikename, String location,boolean flag){
+		if(flag){
+			System.out.println("**********搜 "+nikename+" 的好友在 "+location+" 发的微博**********");
+			System.out.println("在本系统中搜 "+nikename+" 有多少个好友");
+		}else{
+			System.out.println("**********搜 "+nikename+" 在 "+location+" 发的微博**********");
+			System.out.println("在本系统中搜 "+nikename+" 是否存在");
+		}
 		PeopleSearch ps = new PeopleSearch();
 		ps.searchName(nikename);
 		
