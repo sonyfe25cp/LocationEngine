@@ -22,15 +22,15 @@ public abstract class SearchFramework {
 	
 	public SearchFramework(String index){
 		this.indexPath=index;
-		init();
+		localInit();
 	}
 
 	protected boolean debug=false;
 	
 	private String indexPath;
 	Directory dir = null;
-	DirectoryReader ireader = null;
-    IndexSearcher isearcher = null;
+	protected DirectoryReader ireader = null;
+	protected IndexSearcher isearcher = null;
     protected Analyzer analyzer = null;
     private int maxNum = 100;
     
@@ -41,7 +41,7 @@ public abstract class SearchFramework {
     	origins = new ArrayList<Indexable>();
     }
     
-    public void init(){
+    public void localInit(){
     	try {
 			dir = NIOFSDirectory.open(new File(indexPath));
 			ireader = DirectoryReader.open(dir);
@@ -64,7 +64,7 @@ public abstract class SearchFramework {
 //		      System.out.println("docId: "+hits[i].doc);
 		      handleDocument(hitDoc);
 		    }
-		    System.out.println("本次搜索一共找到："+hits.length+" 个结果.");
+//		    System.out.println("本次搜索一共找到："+hits.length+" 个结果.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -86,4 +86,21 @@ public abstract class SearchFramework {
 	public void setMaxNum(int maxNum) {
 		this.maxNum = maxNum;
 	}
+	
+    public void searchForDoc(String args){
+		try {
+		    Query query = createQuery(args);
+		    Filter filter = createFilter();
+		    ScoreDoc[] hits = isearcher.search(query, filter, maxNum).scoreDocs;
+		    for (int i = 0; i < hits.length; i++) {
+		    	handleDocId(hits[i].doc);
+		    }
+		    System.out.println("本次搜索一共找到："+hits.length+" 个结果.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+    public void handleDocId(int docId){
+    	
+    };
 }

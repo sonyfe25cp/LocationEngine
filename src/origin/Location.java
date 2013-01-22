@@ -14,6 +14,14 @@ public class Location extends Origin implements Indexable{
 	private long id;
 	private String location;
 	
+	public Location() {
+		super();
+	}
+	public Location(long id, String location) {
+		super();
+		this.id = id;
+		this.location = location;
+	}
 	@Override
 	public Document toDocument() {
 		Document document = new Document();
