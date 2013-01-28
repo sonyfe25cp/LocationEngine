@@ -28,6 +28,7 @@ import origin.Location;
 import refined.Indexable;
 import search.FriendShipSearch;
 import search.SearchFramework;
+import utils.DLDEConfiguration;
 
 /**
  * @author ChenJie
@@ -40,10 +41,13 @@ public class AutoRun extends SearchFramework{
 		super(index);
 	}
 
-	static String filePath ="/Users/omar/project/locationEngine/index-std/";
-	static String locationFile = "/Users/omar/project/locationEngine/stat/locations-whole.txt";
-	static String usersIdFile = "/Users/omar/project/locationEngine/stat/usersId.txt";
-	List<Location> locationList = new ArrayList<Location>();;
+	static String filePath = DLDEConfiguration.getInstance("config.properties").getValue("index-std");
+	static String locationFile = DLDEConfiguration.getInstance("config.properties").getValue("locations-whole");
+	static String usersIdFile = DLDEConfiguration.getInstance("config.properties").getValue("usersId");
+	static String outputFile = DLDEConfiguration.getInstance("config.properties").getValue("auto_run_results");
+	
+	
+	List<Location> locationList = new ArrayList<Location>();
 	List<String> usersId = new ArrayList<String>();
 	Map<String,String> uidMap = new HashMap<String,String>();
 	List<String> resultsList = new ArrayList<String>();
@@ -54,7 +58,7 @@ public class AutoRun extends SearchFramework{
 	public AutoRun() {
 		super(filePath);
 		try {
-			fw = new FileWriter("/Users/omar/project/locationEngine/stat/results.txt");
+			fw = new FileWriter(outputFile);
 			readFile();
 			readUsersIdFile();
 		} catch (IOException e) {
@@ -180,7 +184,7 @@ public class AutoRun extends SearchFramework{
 		AutoRun ar = new AutoRun();
 //		ar.generateUsersId();//生成usersId列表
 		
-		ar.autoRun();
+//		ar.autoRun();
 		ar.close();
 	}
 	
