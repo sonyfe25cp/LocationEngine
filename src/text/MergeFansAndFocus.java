@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 
 import utils.DLDEConfiguration;
 
@@ -52,8 +53,6 @@ public class MergeFansAndFocus {
 					}
 					long uid_fans = Long.parseLong(tmp_fans[0]);
 					String fans_ids = tmp_fans[1];
-					System.out.println("focus:"+focus);
-					System.out.println("fans:"+fans);
 					if(focus_over){
 						bw.write(fans);
 						bw.newLine();
@@ -70,7 +69,7 @@ public class MergeFansAndFocus {
 								break;
 							}
 						}else if(uid == uid_fans){
-							res = focus+","+fans_ids;
+							res = uid+" "+ mergeString(focus_ids,fans_ids);
 							bw.write(res);
 							bw.newLine();
 							fans = fansBr.readLine();
@@ -112,6 +111,31 @@ public class MergeFansAndFocus {
 		}
 	}
 	
+	/**
+	 * @param focus : id,id2,id3
+	 * @param fans : id,id2,id4
+	 * @return
+	 * Jan 28, 2013
+	 */
+	public String mergeString(String focus,String fans){
+		String total = focus+","+fans;
+		String[] tmps = total.split(",");
+		HashSet<String> set = new HashSet<String>();
+		for(String tmp:tmps){
+			set.add(tmp);
+		}
+		StringBuilder sb = new StringBuilder();
+		int size = set.size();
+		int i = 0;
+		for(String tmp:set){
+			sb.append(tmp);
+			i ++;
+			if(i < size){
+				sb.append(",");
+			}
+		}
+		return sb.toString();
+	}
 	
 	/**
 	 * @param args

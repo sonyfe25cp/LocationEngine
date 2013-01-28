@@ -6,12 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author ChenJie 读取配置文件
  */
 public class DLDEConfiguration {
 
-	private Logger logger = new Logger();
+	private Logger logger = Logger.getLogger(DLDEConfiguration.class);
 	
 	private static DLDEConfiguration config = null;
 	private String file;
@@ -76,13 +78,5 @@ public class DLDEConfiguration {
 			}
 		}
 		return value;
-	}
-}
-class Logger{
-	public void info(String info){
-		System.out.println("info:"+info);
-	}
-	public void error(String info){
-		System.out.println("error:"+info);
 	}
 }
