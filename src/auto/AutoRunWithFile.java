@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -26,41 +27,35 @@ import org.apache.lucene.util.Version;
 import origin.FriendShipOrigin;
 import origin.Location;
 import refined.Indexable;
-import search.FriendShipSearch;
 import search.SearchFramework;
-import utils.DLDEConfiguration;
 
 /**
  * @author ChenJie
  *
  * 根据发微博的人生成 人*地点 的所有搜索结果
- * 根据已有usersid,location-whole,组合查询结果
- * 利用usersid，查询其好友，然后用好友列表来过滤location的搜索结果
+ * 根据已经生成好的usersid-friendship，locations-whole来组合查询
+ * 不用在去索引里搜usersid的好友关系，直接取列表来过滤location的搜索结果
  */
-public class AutoRun extends SearchFramework{
+public class AutoRunWithFile extends SearchFramework{
 	
-	public AutoRun(String index) {
+	public AutoRunWithFile(String index) {
 		super(index);
 	}
 
-	static String filePath = DLDEConfiguration.getInstance("config.properties").getValue("index-std");
-	static String locationFile = DLDEConfiguration.getInstance("config.properties").getValue("locations-whole");
-	static String usersIdFile = DLDEConfiguration.getInstance("config.properties").getValue("usersId");
-	static String outputFile = DLDEConfiguration.getInstance("config.properties").getValue("auto_run_results");
-	
-	
-	List<Location> locationList = new ArrayList<Location>();
-	List<String> usersId = new ArrayList<String>();
+	static String filePath ="/Users/omar/project/locationEngine/index-std/";
+	static String locationFile = "/Users/omar/project/locationEngine/stat/locations-whole.txt";
+	static String friendshipFile = "/Users/omar/project/locationEngine/stat/friendshipFile.txt";
+	List<Location> locationList = new ArrayList<Location>();;
+	Map<String,String> usersId = new HashMap<String,String>();
 	Map<String,String> uidMap = new HashMap<String,String>();
 	List<String> resultsList = new ArrayList<String>();
-	FriendShipSearch fss = new FriendShipSearch();;
 	QueryParser parser = new QueryParser(Version.LUCENE_40, "location", analyzer);
 	FileWriter fw = null;
 	
-	public AutoRun() {
+	public AutoRunWithFile() {
 		super(filePath);
 		try {
-			fw = new FileWriter(outputFile);
+			fw = new FileWriter("/Users/omar/project/locationEngine/stat/results-with-friendship.txt");
 			readFile();
 			readUsersIdFile();
 		} catch (IOException e) {
@@ -88,10 +83,13 @@ public class AutoRun extends SearchFramework{
 		System.out.println("read locations file over");
 	}
 	public void readUsersIdFile() throws Exception{
-		BufferedReader br = new BufferedReader(new FileReader(new File(usersIdFile)));
+		BufferedReader br = new BufferedReader(new FileReader(new File(friendshipFile)));
 		String line = null;
 		while((line =  br.readLine()) !=null){
-			usersId.add(line);
+			String[] tmp=line.split(" ");
+			if(tmp.length == 2){
+				usersId.put(tmp[0], tmp[1]);
+			}
 		}
 		br.close();
 		System.out.println("read usersId file over");
@@ -99,10 +97,10 @@ public class AutoRun extends SearchFramework{
 	public void autoRun() throws IOException{
 		System.out.println("usersId.size: "+usersId.size());
 		System.out.println("locationList.size: "+locationList.size());
-		for(String uid : usersId){
+		for(Entry<String,String> entry : usersId.entrySet()){
 			for(Location location: locationList){
 				try {
-					wideSearch(uid, location);
+					wideSearch(entry, location);
 				} catch (Exception e) {
 					continue;
 				}
@@ -114,7 +112,7 @@ public class AutoRun extends SearchFramework{
 				}
 			}
 			fw.flush();
-			System.out.println("uid: "+uid+" over~~");
+			System.out.println("uid: "+entry.getKey()+" over~~");
 		}
 	}
 	
@@ -135,30 +133,18 @@ public class AutoRun extends SearchFramework{
 		}
 	}
 	
-	public void wideSearch(String uid, Location location) throws Exception{
+	public void wideSearch(Entry<String,String> entry, Location location) throws Exception{
 //		System.out.println("search "+uid +" -- "+location);
-		fss.clear();//清空结果
-		fss.focuses(uid);
-		List<Indexable> focuses = fss.origins;
-		List<String> focusIds;
-		focusIds = new ArrayList<String>();
-		if(focuses.size()==1){
-			FriendShipOrigin fso = (FriendShipOrigin)focuses.get(0);
-			String fsos = fso.getFocus();
-			String[] fsoses = fsos.split(",");
+		List<String> focusIds = new ArrayList<String>();
+		String ids = entry.getValue();
+		if(ids!=null){
+			String[] fsoses = ids.split(",");
 			for(String tmp : fsoses){
 				focusIds.add(tmp);
 			}
+		}else{
+			return ;
 		}
-//		fss.clear();//清空关注
-//		fss.friends(uid);
-//		focuses = fss.origins;
-//		if(focuses!=null && focuses.size()>0){
-//			for(Indexable indexable:focuses){
-//				FriendShipOrigin fso = (FriendShipOrigin)indexable;
-//				focusIds.add(fso.getUid()+"");
-//			}
-//		}
 	    Query query = parser.parse(location.getLocation());
 	    
 	    BooleanQuery boolQuery = new BooleanQuery();
@@ -173,17 +159,17 @@ public class AutoRun extends SearchFramework{
 		    for (int i = 0; i < hits.length; i++) {
 		    	sb.append(hits[i].doc+",");
 		    }
-		    String result = uid+"\t"+location.getId()+"\t"+sb.toString();
+		    String result = entry.getKey()+"\t"+location.getId()+"\t"+sb.toString();
 //		    System.out.println(result);
 		    resultsList.add(result);
 	    }
 	}
 	
 	public static void main(String[] args) throws Exception {
-		AutoRun ar = new AutoRun();
+		AutoRunWithFile ar = new AutoRunWithFile();
 //		ar.generateUsersId();//生成usersId列表
 		
-//		ar.autoRun();
+		ar.autoRun();
 		ar.close();
 	}
 	
@@ -212,7 +198,6 @@ public class AutoRun extends SearchFramework{
 		try {
 			fw.flush();
 			fw.close();
-			fss.close();
 			ireader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
