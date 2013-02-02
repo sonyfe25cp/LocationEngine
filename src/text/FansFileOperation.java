@@ -29,7 +29,8 @@ public class FansFileOperation {
 		File output = new File(outputFile);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(input));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(output));
+//			BufferedWriter bw = new BufferedWriter(new FileWriter(output));
+			FileWriter bw = new FileWriter(output);
 			String line = br.readLine();//每一行的内容
 			String tmp = line.split(" ")[0];//用户标注
 			StringBuilder sb = new StringBuilder();
@@ -42,9 +43,9 @@ public class FansFileOperation {
 						
 					}else{
 						res = merge(tmp,sb);
-						System.out.println(res);
+//						System.out.println(res);
 						bw.write(res);
-						bw.newLine();
+						bw.write("\n");
 						tmp = id;
 						sb = new StringBuilder();//置空
 					}
@@ -55,9 +56,9 @@ public class FansFileOperation {
 				line = br.readLine();
 			}
 			res = merge(tmp,sb);
-			System.out.println(res);
+//			System.out.println(res);
 			bw.write(res);
-			bw.newLine();
+			bw.write("\n");
 			bw.flush();
 			bw.close();
 			br.close();

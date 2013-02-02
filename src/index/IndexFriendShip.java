@@ -3,22 +3,22 @@ package index;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import origin.FriendShipOrigin;
 import origin.NextRowException;
 import origin.reader.OriginReaderFramework;
+import utils.DLDEConfiguration;
 
 public class IndexFriendShip extends OriginReaderFramework{
 	
-	
+	static String friendshipFile=DLDEConfiguration.getInstance("config.properties").getValue("friendshipResult");
+	static String friendshipIndex=DLDEConfiguration.getInstance("config.properties").getValue("friendshipIndex");
 	
 	public IndexFriendShip(File file) {
 		super(file);
@@ -26,19 +26,16 @@ public class IndexFriendShip extends OriginReaderFramework{
 	}
 	
 	public IndexFriendShip() {
-		this(new File(filePath));
+		this(new File(friendshipFile));
 	}
 
 	IndexWriter iwriter;
 	Directory dir;
-	private static String filePath="/Users/omar/data/sinaweibo/user_att.full";
-	private static String indexPath="/Users/omar/project/locationEngine/index-friendship";
 	public void init(){
-		File path = new File(indexPath);
+		File path = new File(friendshipIndex);
 		try {
 			dir = FSDirectory.open(path);
-			Analyzer analyzer = new IKAnalyzer();
-			IndexWriterConfig iwConfig = new IndexWriterConfig(Version.LUCENE_40 , analyzer);
+			IndexWriterConfig iwConfig = new IndexWriterConfig(Version.LUCENE_40 , null);
 			iwConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
 			iwriter = new IndexWriter(dir , iwConfig);
 		} catch (IOException e) {
@@ -67,7 +64,6 @@ public class IndexFriendShip extends OriginReaderFramework{
 			iwriter.close();
 			dir.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
