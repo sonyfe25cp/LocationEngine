@@ -30,28 +30,27 @@ import search.SearchFramework;
  * 不用在去索引里搜usersid的好友关系，直接取列表来过滤location的搜索结果
  * 1006662555
  */
-public class AutoRunWithFile extends SearchFramework{
+public class AutoRunWithFileThread extends SearchFramework implements Runnable{
 	
-	public AutoRunWithFile(String index) {
+	public AutoRunWithFileThread(String index) {
 		super(index);
 	}
 
 	static String indexPath ="/Users/omar/project/locationEngine/index-std/";
 	static String locationFile = "/Users/omar/project/locationEngine/stat/locations-whole.txt";
-//	static String friendshipFile = "/Users/omar/project/locationEngine/stat/usersId-useful.txt";
-	static String friendshipFile = "/Users/omar/project/locationEngine/stat/test/xai";
-//	static String friendshipFile = "/Users/omar/data/sinaweibo/friendship_results.full";
 	
-	
-	List<Location> locationList = new ArrayList<Location>();;
+	String friendshipFile;
+	String resultsFile;
+	List<Location> locationList = new ArrayList<Location>();
 	BufferStore bs = null;
 	QueryParser parser = new QueryParser(Version.LUCENE_40, "location", analyzer);
 	
-	public AutoRunWithFile() {
+	public AutoRunWithFileThread(String friendshipFile,BufferStore bs) {
 		super(indexPath);
+		this.friendshipFile = friendshipFile;
+		this.bs = bs;
 		try {
 			readFile();
-			bs = BufferStore.getInstance();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -130,10 +129,13 @@ public class AutoRunWithFile extends SearchFramework{
 	    }
 	}
 	
-	public static void main(String[] args) throws Exception {
-		AutoRunWithFile ar = new AutoRunWithFile();
-		ar.autoRun();
-		ar.close();
+	public void run(){
+		try {
+			autoRun();
+			close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

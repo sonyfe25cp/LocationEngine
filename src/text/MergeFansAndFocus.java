@@ -19,7 +19,7 @@ public class MergeFansAndFocus {
 
 	String focusInputFile = DLDEConfiguration.getInstance("config.properties").getValue("focusSortedFile");
 	String fansInputFile = DLDEConfiguration.getInstance("config.properties").getValue("fansSortedFile");
-	String outputFile = DLDEConfiguration.getInstance("config.properties").getValue("friendShipResult");
+	String outputFile = DLDEConfiguration.getInstance("config.properties").getValue("friendshipResult");
 
 	
 	public void operate(){
@@ -30,7 +30,7 @@ public class MergeFansAndFocus {
 		try {
 			BufferedReader focusBr = new BufferedReader(new FileReader(focusInput));
 			BufferedReader fansBr = new BufferedReader(new FileReader(fansInput));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(output));
+			FileWriter bw = new FileWriter(output);
 			
 			String focus = focusBr.readLine();
 			String fans = fansBr.readLine();
@@ -38,12 +38,18 @@ public class MergeFansAndFocus {
 			boolean fans_over = false;
 			boolean focus_over = false;
 			while(focus!=null){
-				String tmp_focus[]=focus.split(" ");
+				String tmp_focus[]=focus.split("\t");
 				if(tmp_focus.length != 2){
 					focus = focusBr.readLine();
 					continue;
 				}
-				long uid = Long.parseLong(tmp_focus[0]);
+				long uid =0;
+				try{
+					uid = Long.parseLong(tmp_focus[0]);
+				}catch(Exception e){
+					focus = focusBr.readLine();
+					continue;
+				}
 				String focus_ids = tmp_focus[1];
 				while(fans!=null){
 					String tmp_fans[] = fans.split(" ");
@@ -51,17 +57,23 @@ public class MergeFansAndFocus {
 						fans = fansBr.readLine();
 						continue;
 					}
-					long uid_fans = Long.parseLong(tmp_fans[0]);
+					long uid_fans = 0;
+					try{
+						uid_fans = Long.parseLong(tmp_fans[0]);
+					}catch(Exception e){
+						fans = fansBr.readLine();
+						continue;
+					}
 					String fans_ids = tmp_fans[1];
 					if(focus_over){
 						bw.write(fans);
-						bw.newLine();
+						bw.write("\n");
 						fans = fansBr.readLine();
 					}else{
 						if(uid < uid_fans){
 							res = focus;
 							bw.write(res);
-							bw.newLine();
+							bw.write("\n");
 							focus = focusBr.readLine();
 							if(focus==null){
 								focus_over = true;
@@ -71,7 +83,7 @@ public class MergeFansAndFocus {
 						}else if(uid == uid_fans){
 							res = uid+" "+ mergeString(focus_ids,fans_ids);
 							bw.write(res);
-							bw.newLine();
+							bw.write("\n");
 							fans = fansBr.readLine();
 							if(fans==null){
 								fans_over = true;
@@ -85,7 +97,7 @@ public class MergeFansAndFocus {
 						}else{
 							res = fans;
 							bw.write(res);
-							bw.newLine();
+							bw.write("\n");
 							fans = fansBr.readLine();
 							if(fans==null){
 								fans_over = true;
@@ -96,7 +108,7 @@ public class MergeFansAndFocus {
 				};
 				if(fans_over){
 					bw.write(focus);
-					bw.newLine();
+					bw.write("\n");
 					focus = focusBr.readLine();
 				}
 			}
