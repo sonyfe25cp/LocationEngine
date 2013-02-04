@@ -67,11 +67,11 @@ public class FriendShipSearch extends SearchFramework{
 	}
 	 
 	public void friendships(String uid,HashSet<String> focusIds){
+		clear();
 		if(debug)
 			System.out.println("搜 "+uid+" 在本系统中关注了多少个好友");
 		focuses(uid);
 		List<Indexable> focuses = origins;
-		
 		if(focuses.size()==1){
 			FriendShipOrigin fso = (FriendShipOrigin)focuses.get(0);
 			String fsos = fso.getFocus();
@@ -137,8 +137,14 @@ public class FriendShipSearch extends SearchFramework{
 			ArrayList<String> results = new ArrayList<String>();
 			int i = 0 ; 
 			for(String uid : usersId){
-				if(i % 100 == 0){
+				if(i % 10 == 0){
 					System.out.println(i + " uid parsed~~");
+					for(String result: results){
+						fw.write(result);
+						fw.write("\n");
+						fw.flush();
+					}
+					results = new ArrayList<String>();
 				}
 				HashSet<String> uidlist = new HashSet<String>();
 				friendships(uid,uidlist);
